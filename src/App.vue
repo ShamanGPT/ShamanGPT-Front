@@ -1,26 +1,34 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <v-app>
+        <v-app-bar>
+            <v-app-bar-title>ChamanGPT</v-app-bar-title>
+            <v-btn @click="toggleTheme" 
+            :icon="theme.global.current.value.dark ? 
+            'mdi-weather-night' : 'mdi-weather-sunny'">
+            </v-btn>
+        </v-app-bar>
+        <v-main>
+            <RouterView />
+        </v-main>
+    </v-app>
 </template>
-
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+
+import {useTheme} from 'vuetify'
+import {RouterView} from 'vue-router'
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
+    components: {
+        RouterView
+    },
+    setup() {
+        const theme = useTheme()
+        
+        const toggleTheme = () => {
+            theme.global.name.value = theme.global.current.value.dark ?
+             'light' : 'dark' 
+        }
+        return {toggleTheme, theme}
+    },
 }
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
