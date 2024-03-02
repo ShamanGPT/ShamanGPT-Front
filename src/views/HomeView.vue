@@ -7,3 +7,9 @@ import ChatComponent from '../components/ChatComponent.vue'
     <ChatComponent />
   </main>
 </template> 
+
+<style>
+html, body {
+  overflow-y: hidden;
+}
+</style>
