@@ -40,18 +40,49 @@ export default {
     Message
   },
   setup() {
-    const message = ref(null)
-    const messages = reactive([])
+    const message = ref(null);
+    const messages = reactive([]);
 
-    const userInput = () => {
+    const userInput = async () => {
       messages.push({
         role: 'user',
         content: message.value
-      })
-      message.value = null
+      });
+
+      try {
+        console.log("message:", message.value )
+        const fetchResponse = async () => {
+          const response = await fetch('http://localhost:3034/ask', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: message.value })
+          });
+          
+          
+          if (!response.ok) {
+            throw new Error('Ha ocurrido un error');
+          }
+
+          return await response.json();
+        };
+
+        const responseData = await fetchResponse();
+
+        messages.push({
+          role: 'bot',
+          content: responseData.content
+        });
+      } catch (error) {
+        console.error('Error:', error);
+      }
+
+      message.value = null;
     }
-    return { userInput, message, messages }
-  },
+
+    return { userInput, message, messages };
+  }
 }
 </script>
 
