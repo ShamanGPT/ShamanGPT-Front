@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import Favoritos from '../components/Favoritos.vue'
 import Login from '@/components/Login.vue'
 import {getAuth, onAuthStateChanged} from 'firebase/auth'
 
@@ -11,6 +12,14 @@ const router = createRouter({
       path: '/chat',
       name: 'home',
       component: HomeView,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/favoritos',
+      name: 'favoritos',
+      component: Favoritos,
       meta: {
         requiresAuth: true
       }
