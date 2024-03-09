@@ -12,6 +12,9 @@
             :icon="theme.global.current.value.dark ? 
             'mdi-weather-night' : 'mdi-weather-sunny'">
             </v-btn>
+            <v-btn @click="logOut">
+                Cerrar Sesión
+            </v-btn>
         </v-app-bar>
         <v-main>
             <RouterView />
@@ -23,6 +26,7 @@
 import {useTheme} from 'vuetify'
 import {RouterView} from 'vue-router'
 import router from './router/index.js'
+import { getAuth, signOut } from 'firebase/auth';
 
 export default {
     components: {
@@ -45,9 +49,23 @@ export default {
         const navigateToChat = () => {
             // Inserta aquí el código para navegar a la ruta '/favoritos'
             // Ejemplo:
-            router.push('/chat')
+            router.push('/')
         }
-        return {toggleTheme, theme, navigateToFavorites, navigateToChat}
+
+        const logOut = async () => {
+            const confirmed = window.confirm('¿Estás seguro de que deseas cerrar sesión?');
+            if (confirmed) {
+                const auth = getAuth();
+                try {
+                await signOut(auth);
+                router.push('/login');
+                } catch (error) {
+                console.error('Error al cerrar sesión:', error);
+                }
+            }
+        };
+    
+        return {toggleTheme, theme, navigateToFavorites, navigateToChat, logOut}
     },
 }
 </script>
