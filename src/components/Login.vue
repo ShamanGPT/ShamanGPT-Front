@@ -33,7 +33,7 @@
             const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
             // Usuario autenticado con éxito
             console.log('Usuario autenticado:', userCredential.user);
-            router.push('/chat')
+            router.push('/')
         } catch (error) {
             // Si hay un error durante la autenticación
             console.error('Error de autenticación:', error.message);
