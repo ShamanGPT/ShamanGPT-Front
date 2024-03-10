@@ -138,10 +138,9 @@ export default {
     }
 
     .card {
-        background-color: #f0f0f0;
         padding: 20px;
         border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0px 0px 5px 5px;
         width: 50vw;
         height: 20vh; 
         word-wrap: break-word;
@@ -154,18 +153,17 @@ export default {
 
     .addButon {
         margin-top: 1%;
-        background-color: #64b5f6; /* Color azul claro que combina bien */
+        background-color: #089B27; /* Color azul claro que combina bien */
         border: none;
         border-radius: 20px; /* Ajusta el valor según el radio que desees */
         padding: 10px 20px;
-        color: #fff; /* Texto en color blanco para contrastar */
         font-size: 16px;
         cursor: pointer;
         transition: background-color 0.3s ease; /* Efecto de transición suave */
     }
 
     .addButon:hover {
-        background-color: #42a5f5; /* Cambia de color al pasar el ratón */
+        background-color: #1D6303; /* Cambia de color al pasar el ratón */
     }
 
     form {
@@ -177,25 +175,23 @@ export default {
         margin-bottom: 5px;
     }
 
-    form input {
-        width: 100%;
-        padding: 8px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
+    form input, form textarea, form button {
+        width: 100%; 
+        padding: 8px; 
+        border-radius: 5px; 
+        border: 1px solid #ccc; 
         margin-bottom: 10px;
+        max-height: 100px;
     }
 
     form button {
-        padding: 10px 20px;
-        background-color: #64b5f6;
-        border: none;
-        border-radius: 20px;
-        color: #fff;
-        cursor: pointer;
+        background-color: #089B27; 
+        cursor: pointer; 
+        transition: background-color 0.3s ease; 
     }
 
     form button:hover {
-        background-color: #42a5f5;
+        background-color: #1D6303; /* Cambia de color al pasar el ratón */
     }
 
     .form-container {
