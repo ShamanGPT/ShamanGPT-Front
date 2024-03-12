@@ -1,7 +1,7 @@
 <template>
     <v-app>
-        <v-app-bar>
-            <v-app-bar-title>ChamanGPT</v-app-bar-title>
+        <v-app-bar v-if="showApp">
+            <v-app-bar-title>ChamanGPT</v-app-bar-title>  
             <v-btn @click="navigateToChat">
                 Chat
             </v-btn>                        
@@ -24,16 +24,21 @@
 <script>
 
 import {useTheme} from 'vuetify'
-import {RouterView} from 'vue-router'
+import {RouterView, useRouter} from 'vue-router'
 import router from './router/index.js'
 import { getAuth, signOut } from 'firebase/auth';
+import { computed } from 'vue';
 
 export default {
     components: {
         RouterView
     },
     setup() {
+        const router = useRouter();
         const theme = useTheme()
+        const showApp = computed(() => {
+            return !router.currentRoute.value.meta.hideApp;
+        });
         
         const toggleTheme = () => {
             theme.global.name.value = theme.global.current.value.dark ?
@@ -41,15 +46,11 @@ export default {
         }
 
         const navigateToFavorites = () => {
-            // Inserta aquí el código para navegar a la ruta '/favoritos'
-            // Ejemplo:
             router.push('/favoritos')
         }
 
         const navigateToChat = () => {
-            // Inserta aquí el código para navegar a la ruta '/favoritos'
-            // Ejemplo:
-            router.push('/')
+            router.push('/chat')
         }
 
         const logOut = async () => {
@@ -58,14 +59,14 @@ export default {
                 const auth = getAuth();
                 try {
                 await signOut(auth);
-                router.push('/login');
+                router.push('/');
                 } catch (error) {
                 console.error('Error al cerrar sesión:', error);
                 }
             }
         };
     
-        return {toggleTheme, theme, navigateToFavorites, navigateToChat, logOut}
+        return {toggleTheme, theme, navigateToFavorites, navigateToChat, logOut, showApp }
     },
 }
 </script>

@@ -16,6 +16,7 @@
         </div>
         <button type="submit">Registrarse</button>
         </form>
+        <p>¿Ya tienes cuenta? <router-link to="/login">Iniciar Sesión</router-link>.</p>
     </div>
 </template>
 
@@ -68,14 +69,16 @@
 
 </script>
   
-  <style scoped>
+<style scoped>
   .login-container {
-    max-width: 300px;
+    max-width: 400px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 40px;
     margin-top: 5%;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 20px;
+    justify-content: center;
+    align-items: center;
   }
   
   .form-group {
@@ -96,15 +99,25 @@
   
   button {
     padding: 10px 20px;
-    background-color: #007bff;
+    background-color: #089B27;
     color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    width: 100%;
   }
   
   button:hover {
-    background-color: #0056b3;
+    background-color: #1D6303;
   }
-  </style>
+
+  p {
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  router-link {
+    color: blue;
+  }
+</style>
   
