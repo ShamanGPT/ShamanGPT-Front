@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import ChatView from '../views/ChatView.vue'
 import HomeView from '../views/HomeView.vue'
 import Favoritos from '../components/Favoritos.vue'
 import Login from '@/components/Login.vue'
@@ -13,6 +14,15 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+      meta: {
+        requiresAuth: false,
+        hideApp: true
+      }
+    },
+    {
+      path: '/chat',
+      name: 'chat',
+      component: ChatView,
       meta: {
         requiresAuth: true
       }
@@ -51,19 +61,25 @@ const getCurrentUser = () => {
   })
 }
 
-router.beforeEach( async (to, from, next) => {
-  if(to.matched.some((record) => record.meta.requiresAuth)){
-    if(await getCurrentUser()){
-      next()
+router.beforeEach(async (to, from, next) => {
+  const currentUser = await getCurrentUser();
+  
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (currentUser) {
+      next();
+    } else {
+      alert('Para acceder al chat primero debes loguearte');
+      next("/login");
     }
-    else{
-      alert('Para acceder al chat primero debes loguearte')
-      next('/login')
+  } else {
+    if (to.path === "/" && currentUser) {
+      next("/chat");
+    } else {
+      next(); 
     }
   }
-  else {
-    next()
-  }
-} )
+});
+
+
 
 export default router
