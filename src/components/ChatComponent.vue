@@ -52,7 +52,7 @@ export default {
       try {
         console.log("message:", message.value )
         const fetchResponse = async () => {
-          const response = await fetch('http://localhost:3034/ask', {
+          const response = await fetch('https://invumg5xnqt3abifoqqx5sdxni0ayceb.lambda-url.us-east-1.on.aws/ask', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
