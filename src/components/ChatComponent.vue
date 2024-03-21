@@ -13,7 +13,7 @@
       elevation="4"
       max-width="85%"
     >
-      <div class="d-flex" max-width="85%" width="85%">
+      <div class="d-flex" style="width: 85%;">
         <v-textarea
           label="prompt"
           variant="underlined"
