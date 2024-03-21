@@ -11,8 +11,6 @@
     <v-sheet
       class="mx-auto mt-1 container pa-5"
       elevation="4"
-      height="auto"
-      width="auto"
       max-width="85%"
     >
       <div class="d-flex">
@@ -93,11 +91,9 @@ export default {
   bottom: 0;
   left: 0;
   width: 100%;
-  /* padding-bottom:  */
 }
 
 .container {
-  max-height: 75vh;
   overflow-y: auto;
   flex-direction: column;
 }

@@ -41,6 +41,7 @@ export default {
 
 .preWrap {
   white-space: pre-wrap;
+  font-family: Arial;
 }
 
 .user-bubble {
