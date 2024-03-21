@@ -14,9 +14,9 @@
       elevation="4"
       max-width="85%"
     >
-      <div class="d-flex" style="width: 85%;">
+      <div class="d-flex" style="width: 100%;">
         <v-textarea
-          label="prompt"
+          label="¿Cuál es tu dolencia?"
           variant="underlined"
           class="me-5"
           v-model="message"
