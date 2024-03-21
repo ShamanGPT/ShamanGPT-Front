@@ -5,7 +5,7 @@
       elevation="4"
       max-width="85%"
       max-height="60vh"
-      display="block"
+      style="display: block;"
     >
       <Message v-for="(message, index) in messages" :key="index" :msg="message" />
     </v-sheet>
