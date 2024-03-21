@@ -4,14 +4,16 @@
       class="mx-auto mt-1 container"
       elevation="4"
       max-width="85%"
-      style="max-height: 60vh;"
+      max-height="60vh"
     >
       <Message v-for="(message, index) in messages" :key="index" :msg="message" />
     </v-sheet>
     <v-sheet
-      class="mx-auto mt-1 container pa-5":style="{width: 'auto', maxWidth:'85%'}"
+      class="mx-auto mt-1 container pa-5"
       elevation="4"
       height="auto"
+      width="auto"
+      max-width="85%"
     >
       <div class="d-flex">
         <v-textarea
