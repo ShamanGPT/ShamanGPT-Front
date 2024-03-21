@@ -9,9 +9,8 @@
       <Message v-for="(message, index) in messages" :key="index" :msg="message" />
     </v-sheet>
     <v-sheet
-      class="mx-auto mt-1 container pa-5"
+      class="mx-auto mt-1 container pa-5":style="{width: 'auto', maxWidth:'85%'}"
       elevation="4"
-      max-width="85%"
       height="auto"
     >
       <div class="d-flex">
@@ -52,7 +51,7 @@ export default {
       try {
         console.log("message:", message.value )
         const fetchResponse = async () => {
-          const response = await fetch('https://invumg5xnqt3abifoqqx5sdxni0ayceb.lambda-url.us-east-1.on.aws/ask', {
+          const response = await fetch('https://shamangpt-back.onrender.com/ask', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
