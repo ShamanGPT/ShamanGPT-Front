@@ -1,4 +1,4 @@
-<template>
+<template style={overflow: auto}>
   <div class="content">
     <v-row>
       <v-col cols="12">
@@ -35,14 +35,13 @@ export default {
 
 <style scoped>
 .content {
-  overflow-x: hidden;
-  overflow-y: hidden;
   padding-left: 60px;
   padding-right: 60px;
 }
 
 .preWrap {
   white-space: pre-wrap;
+  font-family: Arial;
 }
 
 .user-bubble {

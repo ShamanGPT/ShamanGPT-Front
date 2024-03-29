@@ -1,13 +1,31 @@
 <template>
   <div class="chat-container">
-    <v-sheet class="mx-auto mt-1 container" elevation="4" max-width="85%" style="max-height: 60vh;">
+    <v-sheet
+      class="mx-auto mt-1 container"
+      elevation="4"
+      max-width="85%"
+      max-height="60vh"
+      style="display: block;"
+    >
       <Message v-for="(message, index) in messages" :key="index" :msg="message" />
     </v-sheet>
-    <v-sheet class="mx-auto mt-1 container pa-5" elevation="4" max-width="85%" height="auto">
-      <div class="d-flex">
-        <v-textarea label="prompt" variant="underlined" class="me-5" v-model="message"></v-textarea>
-        <v-btn @click="userInput" icon="mdi-send" class="align-self-center"></v-btn>
-        <v-btn @click="startRecordingOnButtonClick" icon="mdi-microphone" class="align-self-center"></v-btn>
+    <v-sheet
+      class="mx-auto mt-1 container pa-5"
+      elevation="4"
+      max-width="85%"
+    >
+      <div class="d-flex" style="width: 100%;">
+        <v-textarea
+          label="¿Cuál es tu dolencia?"
+          variant="underlined"
+          class="me-5"
+          v-model="message"
+        ></v-textarea>
+        <v-btn
+          @click="userInput"
+          icon="mdi-send"
+          class="align-self-center"
+        ></v-btn>
       </div>
     </v-sheet>
   </div>
@@ -180,12 +198,12 @@ export default {
   bottom: 0;
   left: 0;
   width: 100%;
-  /* padding-bottom:  */
 }
 
 .container {
-  max-height: 75vh;
   overflow-y: auto;
   flex-direction: column;
 }
+
+
 </style>
