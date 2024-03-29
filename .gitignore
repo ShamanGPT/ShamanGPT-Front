@@ -2,8 +2,12 @@
 node_modules
 /dist
 
+# amazon secrets
+aws.js
+
 
 # local env files
+.env
 .env.local
 .env.*.local
 
