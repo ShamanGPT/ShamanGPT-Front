@@ -26,6 +26,11 @@
           icon="mdi-send"
           class="align-self-center"
         ></v-btn>
+        <v-btn
+          @click="startRecordingOnButtonClick"
+          icon="mdi-microphone"
+          class="align-self-center"
+        ></v-btn>
       </div>
     </v-sheet>
   </div>
@@ -42,7 +47,6 @@ import {
 import MicrophoneStream from "microphone-stream";
 import { Buffer } from "buffer";
 window.Buffer = window.Buffer || Buffer;
-window.Micro
 // UPDATE THIS ACCORDING TO YOUR AWS CREDENTIALS:
 import { AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } from "../../aws"
 
