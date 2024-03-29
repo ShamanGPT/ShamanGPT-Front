@@ -5,7 +5,6 @@ node_modules
 # amazon secrets
 aws.js
 
-
 # local env files
 .env
 .env.local
