@@ -1,36 +1,16 @@
 <template>
   <div class="chat-container">
-    <v-sheet
-      class="mx-auto mt-1 container"
-      elevation="4"
-      max-width="85%"
-      max-height="60vh"
-      style="display: block;"
-    >
+    <v-sheet class="mx-auto mt-1 container" elevation="4" max-width="85%" max-height="60vh" style="display: block;">
       <Message v-for="(message, index) in messages" :key="index" :msg="message" />
     </v-sheet>
-    <v-sheet
-      class="mx-auto mt-1 container pa-5"
-      elevation="4"
-      max-width="85%"
-    >
+    <v-sheet class="mx-auto mt-1 container pa-5" elevation="4" max-width="85%">
       <div class="d-flex" style="width: 100%;">
-        <v-textarea
-          label="¿Cuál es tu dolencia?"
-          variant="underlined"
-          class="me-5"
-          v-model="message"
-        ></v-textarea>
-        <v-btn
-          @click="userInput"
-          icon="mdi-send"
-          class="align-self-center"
-        ></v-btn>
-        <v-btn
-          @click="startRecordingOnButtonClick"
-          icon="mdi-microphone"
-          class="align-self-center"
-        ></v-btn>
+        <audio controls style="display: none;" ref="audioElement"></audio>
+        <v-textarea label="¿Cuál es tu dolencia?" variant="underlined" class="me-5" v-model="message"></v-textarea>
+        <v-btn @click="userInput" icon="mdi-send" class="align-self-center"></v-btn>
+        <v-btn ref="btnStart" icon="mdi-microphone" class="align-self-center"></v-btn>
+        <v-btn ref="btnStop" icon="mdi-stop" class="align-self-center"></v-btn>
+        <audio controls id="audioPlay" style="display: block;" ref="audioElement"></audio>
       </div>
     </v-sheet>
   </div>
@@ -40,54 +20,103 @@
 // El siguiente componente sirve para mostrar los mensajes de los usuarios, permite el input en texto y voz.
 import Message from './Message.vue'
 import { reactive, ref } from 'vue'
-import {
-  TranscribeStreamingClient,
-  StartStreamTranscriptionCommand,
-} from "@aws-sdk/client-transcribe-streaming";
-import MicrophoneStream from "microphone-stream";
 import { Buffer } from "buffer";
 window.Buffer = window.Buffer || Buffer;
-// UPDATE THIS ACCORDING TO YOUR AWS CREDENTIALS:
-import { AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } from "../../aws"
+import { v4 as uuidv4 } from 'uuid';
+
+
+import AWS from 'aws-sdk'
+import { StartTranscriptionJobCommand, TranscribeClient } from "@aws-sdk/client-transcribe";
+import { AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME, AWS_S3_URI } from "../../aws"
 
 export default {
   components: {
     Message
   },
   setup() {
+    const audioElement = ref(null);
+    const btnStop = ref(null)
+    const btnStart = ref(null)
+
     const message = ref(null);
     const messages = reactive([]);
 
-    // Maneja el evento cuando se presiona el microfono y llama a la funcion principal (startRecording)
-    const startRecordingOnButtonClick = async () => {
-      await startRecording(handleTranscription);
-    };
+    let s3 = undefined;
 
-    // Se usa para escribir la transcripcion en el html.
-    const handleTranscription = (transcription) => {
-      messages.push({
-        role: 'user',
-        content: transcription
-      });
-    };
+
     // La siguiente funcion se encarga de procesar y mostrar los inputs en forma de audio y los renderiza en la interfaz.
 
-    let microphoneStream = undefined;
     const language = "es-ES";
-    const SAMPLE_RATE = 44100;
     let transcribeClient = undefined;
-    // Se crea el stream de audio.
-    const createMicrophoneStream = async () => {
-      microphoneStream =
-        await window.navigator.mediaDevices.getUserMedia({
-          video: false,
-          audio: true,
+
+    // Se asocia el microfono del usuario con una callback function que procesa la respuesta.
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(function (mediaStreamObj) {
+
+        let playAudio = document.getElementById('audioPlay');
+        let start = btnStart.value.$el
+        let stop = btnStop.value.$el
+
+        // This is the main thing to recorded 
+        // the audio 'MediaRecorder' API
+        let mediaRecorder = new MediaRecorder(mediaStreamObj, { audioBitsPerSecond: 5000 });
+        // Pass the audio stream 
+
+        // Start event
+        start.addEventListener('click', function (ev) {
+          mediaRecorder.start();
         })
 
-    };
+        // Stop event
+        stop.addEventListener('click', function (ev) {
+          mediaRecorder.stop();
+        });
+
+        // If audio data available then push 
+        // it to the chunk array
+        mediaRecorder.ondataavailable = function (ev) {
+          dataArray.push(ev.data);
+        }
+
+        // Chunk array to store the audio data 
+        let dataArray = [];
+
+        // Convert the audio data in to blob 
+        // after stopping the recording
+        mediaRecorder.onstop = function (ev) {
+
+          // blob of type wav
+          let audioData = new Blob(dataArray,
+            { 'type': 'audio/wav' });
+
+          // array make it empty
+          dataArray = [];
+
+          // Creating audio url with reference 
+          // of created blob named 'audioData'
+          let audioSrc = window.URL
+            .createObjectURL(audioData);
+
+          playAudio.src = audioSrc;
+
+          //Creating bucket file name:
+          let bucketFileName = "shaman-input-" + uuidv4() + ".wav"
+          createBucketClient();
+          uploadFileToBucket(bucketFileName, audioData);
+          createTranscribeClient()
+          transcribeAudioFile(bucketFileName)
+          getTranscription(bucketFileName)
+        }
+      })
+      .catch(function (err) {
+        console.log(err.name, err.message);
+      });
+
+
+
     // Se crea el cliente AWS TRANSCRIBE.
     const createTranscribeClient = () => {
-      transcribeClient = new TranscribeStreamingClient({
+      transcribeClient = new TranscribeClient({
         region: AWS_REGION,
         credentials: {
           accessKeyId: AWS_ACCESS_KEY_ID,
@@ -95,62 +124,76 @@ export default {
         },
       });
     };
-    //Pulse-code modulation, para representar señales análogas de manera digital.
-    const encodePCMChunk = (chunk) => {
-      const input = MicrophoneStream.toRaw(chunk);
-      let offset = 0;
-      const buffer = new ArrayBuffer(input.length * 2);
-      const view = new DataView(buffer);
-      for (let i = 0; i < input.length; i++, offset += 2) {
-        let s = Math.max(-1, Math.min(1, input[i]));
-        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
-      }
-      return Buffer.from(buffer);
-    };
-    // Acomoda los chunks de audio en un formato que AWS TRANSCRIBE acepte.
-    const getAudioStream = async function* () {
-      for await (const chunk of microphoneStream) {
-        if (chunk.length <= SAMPLE_RATE) {
-          yield {
-            AudioEvent: {
-              AudioChunk: encodePCMChunk(chunk),
-            },
-          };
-        }
-      }
-    };
-    // Empieza la transmision de la voz hacia el cliente AWS. 
-    const startStreaming = async (language, callback) => {
-      const command = new StartStreamTranscriptionCommand({
-        LanguageCode: language,
-        MediaEncoding: "pcm",
-        MediaSampleRateHertz: SAMPLE_RATE,
-        AudioStream: getAudioStream(),
+
+    //Esta funcion se encarga de crear un cliente de aws s3 bucket.
+    const createBucketClient = async () => {
+      AWS.config.update({
+        accessKeyId: AWS_ACCESS_KEY_ID,
+        secretAccessKey: AWS_SECRET_ACCESS_KEY,
+        region: AWS_REGION // Por ejemplo, 'us-east-1'
       });
-      const data = await transcribeClient.send(command);
-      for await (const event of data.TranscriptResultStream) {
-        const results = event.TranscriptEvent.Transcript.Results;
-        if (results.length && !results[0]?.IsPartial) {
-          const newTranscript = results[0].Alternatives[0].Transcript;
-          console.log(newTranscript);
-          callback(newTranscript + " ");
+      s3 = new AWS.S3()
+    }
+
+    // Esta funcion se encarga de subir la grabacion a un bucket s3.
+    const uploadFileToBucket = async (fileName, audioBlob) => {
+      const params = {
+        Bucket: BUCKET_NAME,
+        Key: fileName,
+        Body: audioBlob
+      };
+
+      // Subir el archivo a S3
+      s3.upload(params, function (err, data) {
+        if (err) {
+          console.error('Error al subir el archivo a S3:', err);
+        } else {
+          console.log('Archivo subido exitosamente a S3:', data.Location);
         }
-      }
-    };
-    // La siguiente función empieza a grabar,  es la principal.
-    const startRecording = async (callback) => {
-      if (!AWS_REGION || !AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY) {
-        alert("Set AWS env variables first.");
-        return false;
+      });
+    }
+
+    // Envia a AWS para hacer la transcripcion del audio
+    const transcribeAudioFile = async (bucketFileName) => {
+      const params = {
+        TranscriptionJobName: bucketFileName,
+        LanguageCode: language, // For example, 'en-US'
+        Media: {
+          MediaFileUri: AWS_S3_URI + bucketFileName,
+        },
+        MediaFormat: "wav",
+        OutputBucketName: BUCKET_NAME,
+      };
+
+      try {
+        const data = await transcribeClient.send(
+          new StartTranscriptionJobCommand(params)
+        );
+        console.log("Success - put", data);
+        return data; // For unit tests.
+      } catch (err) {
+        console.log("Error", err);
       }
 
-      if (microphoneStream || transcribeClient) {
-        stopRecording();
-      }
-      createTranscribeClient();
-      createMicrophoneStream();
-      await startStreaming(language, callback);
     };
+
+    const getTranscription = async (fileName) => {
+      setTimeout(() => {
+        const params = {
+          Bucket: BUCKET_NAME,
+          Key: fileName + ".json",
+        };
+        s3.getObject(params, function (err, data) {
+          if (err) {
+            console.error('Error al descargar el archivo desde S3:', err);
+          } else {
+            console.log("El data es", data.Body)
+          }
+        });
+
+      },40000)
+
+    }
 
     // La siguiente funcion se encarga de procesar los inputs en forma de texto y los renderiza en la interfaz.
     const userInput = async () => {
@@ -191,7 +234,7 @@ export default {
       message.value = null;
     }
 
-    return { startRecordingOnButtonClick, userInput, message, messages };
+    return { audioElement, btnStop, btnStart, userInput, message, messages };
   }
 }
 </script>
@@ -208,6 +251,4 @@ export default {
   overflow-y: auto;
   flex-direction: column;
 }
-
-
 </style>
