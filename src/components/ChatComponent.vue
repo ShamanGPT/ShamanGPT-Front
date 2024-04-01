@@ -65,25 +65,58 @@ export default {
 
     // Se usa para escribir la transcripcion en el html.
     const handleTranscription = (transcription) => {
-      messages.push({
-        role: 'user',
-        content: transcription
-      });
+      message.value = transcription;
     };
     // La siguiente funcion se encarga de procesar y mostrar los inputs en forma de audio y los renderiza en la interfaz.
 
     let microphoneStream = undefined;
-    const language = "es-ES";
+    const language = "es-US";
     const SAMPLE_RATE = 44100;
     let transcribeClient = undefined;
+    let audioStream = undefined;
+    let processor = undefined;
+    let mediaStreamTrack = undefined;
+
+    const stopRecording = () => {
+      alert("Deteniendo grabación");
+      if (processor) {
+        processor.disconnect();
+        processor = undefined;
+      }
+      if (microphoneStream) {
+        microphoneStream.close();
+        microphoneStream = undefined;
+      }
+      if (transcribeClient) {
+        // Detener la transcripción
+        transcribeClient.destroy();
+        transcribeClient = undefined;
+      }
+      audioStream = undefined;
+    };
+
     // Se crea el stream de audio.
     const createMicrophoneStream = async () => {
-      microphoneStream =
-        await window.navigator.mediaDevices.getUserMedia({
-          video: false,
-          audio: true,
-        })
+      microphoneStream = new AudioContext();
+      processor = microphoneStream.createScriptProcessor(1024, 1, 1);
+      let source;
 
+      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+        source = microphoneStream.createMediaStreamSource(stream);
+        source.connect(processor);
+        processor.connect(microphoneStream.destination);
+      });
+
+      audioStream = {
+        [Symbol.asyncIterator]: () => ({
+          next: () => new Promise(resolve => {
+            processor.onaudioprocess = (e) => {
+              let chunk = e.inputBuffer.getChannelData(0);
+              resolve({ value: chunk, done: false });
+            };
+          })
+        })
+      };
     };
     // Se crea el cliente AWS TRANSCRIBE.
     const createTranscribeClient = () => {
@@ -109,7 +142,7 @@ export default {
     };
     // Acomoda los chunks de audio en un formato que AWS TRANSCRIBE acepte.
     const getAudioStream = async function* () {
-      for await (const chunk of microphoneStream) {
+      for await (const chunk of audioStream) {
         if (chunk.length <= SAMPLE_RATE) {
           yield {
             AudioEvent: {
@@ -146,6 +179,7 @@ export default {
 
       if (microphoneStream || transcribeClient) {
         stopRecording();
+        return false;
       }
       createTranscribeClient();
       createMicrophoneStream();
