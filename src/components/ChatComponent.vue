@@ -211,7 +211,7 @@ export default {
       try {
         console.log("message:", message.value)
         const fetchResponse = async () => {
-          const response = await fetch('https://8frcnhlalf.execute-api.us-east-1.amazonaws.com/dev/ask', {
+          const response = await fetch('https://5v3rr6c665bjhz2e3kf6nmylk40mdxsa.lambda-url.us-east-1.on.aws/ask', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
