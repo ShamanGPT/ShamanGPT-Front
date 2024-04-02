@@ -121,10 +121,10 @@ export default {
     // Se crea el cliente AWS TRANSCRIBE.
     const createTranscribeClient = () => {
       transcribeClient = new TranscribeStreamingClient({
-        region: AWS_REGION,
+        region: process.env.VUE_APP_AWS_REGION,
         credentials: {
-          accessKeyId: AWS_ACCESS_KEY_ID,
-          secretAccessKey: AWS_SECRET_ACCESS_KEY,
+          accessKeyId: process.env.VUE_APP_AWS_ACCESS_KEY_ID,
+          secretAccessKey: process.env.VUE_APP_AWS_SECRET_ACCESS_KEY,
         },
       });
     };
@@ -177,7 +177,7 @@ export default {
     };
     // La siguiente función empieza a grabar,  es la principal.
     const startRecording = async (callback) => {
-      if (!AWS_REGION || !AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY) {
+      if (!process.env.VUE_APP_AWS_REGION || !process.env.VUE_APP_AWS_ACCESS_KEY_ID || !process.env.VUE_APP_AWS_SECRET_ACCESS_KEY) {
         alert("Set AWS env variables first.");
         return false;
       }
