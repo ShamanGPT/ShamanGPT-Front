@@ -185,6 +185,7 @@ export default {
     };
     // La siguiente función empieza a grabar,  es la principal.
     const startRecording = async (callback) => {
+      console.log(process.env.VUE_APP_AWS_REGION)
       if (!process.env.VUE_APP_AWS_REGION || !process.env.VUE_APP_AWS_ID || !process.env.VUE_APP_AWS_SEC) {
         alert("Set AWS env variables first.");
         return false;
