@@ -60,7 +60,15 @@ export default {
 
     // Maneja el evento cuando se presiona el microfono y llama a la funcion principal (startRecording)
     const startRecordingOnButtonClick = async () => {
-      await startRecording(handleTranscription);
+      try {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Permisos concedidos, iniciar la grabación
+        await startRecording(handleTranscription);
+      } catch (error) {
+        // Permisos denegados o error al obtener permisos
+        console.error('Error al obtener permisos del micrófono:', error);
+        alert('No se han concedido los permisos del micrófono.');
+      }
     };
 
     // Se usa para escribir la transcripcion en el html.
@@ -123,8 +131,8 @@ export default {
       transcribeClient = new TranscribeStreamingClient({
         region: process.env.VUE_APP_AWS_REGION,
         credentials: {
-          accessKeyId: process.env.VUE_APP_AWS_ACCESS_KEY_ID,
-          secretAccessKey: process.env.VUE_APP_AWS_SECRET_ACCESS_KEY,
+          accessKeyId: process.env.VUE_APP_AWS_KEY_ID,
+          secretAccessKey: process.env.VUE_APP_AWS_SECRET_KEY,
         },
       });
     };
@@ -177,7 +185,7 @@ export default {
     };
     // La siguiente función empieza a grabar,  es la principal.
     const startRecording = async (callback) => {
-      if (!process.env.VUE_APP_AWS_REGION || !process.env.VUE_APP_AWS_ACCESS_KEY_ID || !process.env.VUE_APP_AWS_SECRET_ACCESS_KEY) {
+      if (!process.env.VUE_APP_AWS_REGION || !process.env.VUE_APP_AWS_KEY_ID || !process.env.VUE_APP_AWS_SECRET_KEY) {
         alert("Set AWS env variables first.");
         return false;
       }
