@@ -75,10 +75,8 @@ export default {
     let transcribeClient = undefined;
     let audioStream = undefined;
     let processor = undefined;
-    let mediaStreamTrack = undefined;
 
     const stopRecording = () => {
-      alert("Deteniendo grabación");
       if (processor) {
         processor.disconnect();
         processor = undefined;
@@ -110,10 +108,12 @@ export default {
       audioStream = {
         [Symbol.asyncIterator]: () => ({
           next: () => new Promise(resolve => {
-            processor.onaudioprocess = (e) => {
-              let chunk = e.inputBuffer.getChannelData(0);
-              resolve({ value: chunk, done: false });
-            };
+            if (processor) {
+              processor.onaudioprocess = (e) => {
+                let chunk = e.inputBuffer.getChannelData(0);
+                resolve({ value: chunk, done: false });
+              };
+            }
           })
         })
       };
@@ -154,20 +154,25 @@ export default {
     };
     // Empieza la transmision de la voz hacia el cliente AWS. 
     const startStreaming = async (language, callback) => {
-      const command = new StartStreamTranscriptionCommand({
-        LanguageCode: language,
-        MediaEncoding: "pcm",
-        MediaSampleRateHertz: SAMPLE_RATE,
-        AudioStream: getAudioStream(),
-      });
-      const data = await transcribeClient.send(command);
-      for await (const event of data.TranscriptResultStream) {
-        const results = event.TranscriptEvent.Transcript.Results;
-        if (results.length && !results[0]?.IsPartial) {
-          const newTranscript = results[0].Alternatives[0].Transcript;
-          console.log(newTranscript);
-          callback(newTranscript + " ");
+      try {
+        alert("Grabando...Presiona el botón de microfono nuevamente para detener")
+        const command = new StartStreamTranscriptionCommand({
+          LanguageCode: language,
+          MediaEncoding: "pcm",
+          MediaSampleRateHertz: SAMPLE_RATE,
+          AudioStream: getAudioStream(),
+        });
+        const data = await transcribeClient.send(command);
+        for await (const event of data.TranscriptResultStream) {
+          const results = event.TranscriptEvent.Transcript.Results;
+          if (results.length && !results[0]?.IsPartial) {
+            const newTranscript = results[0].Alternatives[0].Transcript;
+            console.log(newTranscript);
+            callback(newTranscript + " ");
+          }
         }
+      } catch (error) {
+        console.error("Error en startStreaming:", error);
       }
     };
     // La siguiente función empieza a grabar,  es la principal.
@@ -179,6 +184,7 @@ export default {
 
       if (microphoneStream || transcribeClient) {
         stopRecording();
+        alert("Deteniendo grabación");
         return false;
       }
       createTranscribeClient();
@@ -211,6 +217,9 @@ export default {
 
           return await response.json();
         };
+
+        stopRecording();
+        alert("Para grabar otro mensaje, vuelva a presionar el micrófono");
 
         const responseData = await fetchResponse();
 
