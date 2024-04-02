@@ -48,7 +48,7 @@ import MicrophoneStream from "microphone-stream";
 import { Buffer } from "buffer";
 window.Buffer = window.Buffer || Buffer;
 // UPDATE THIS ACCORDING TO YOUR AWS CREDENTIALS:
-import { AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } from "../../aws"
+//import { AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } from "../../aws"
 
 export default {
   components: {
