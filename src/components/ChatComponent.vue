@@ -202,7 +202,7 @@ export default {
       try {
         console.log("message:", message.value)
         const fetchResponse = async () => {
-          const response = await fetch('https://shamangpt-back.onrender.com/ask', {
+          const response = await fetch('https://8frcnhlalf.execute-api.us-east-1.amazonaws.com/dev/ask', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
