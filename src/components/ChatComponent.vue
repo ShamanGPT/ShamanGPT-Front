@@ -52,7 +52,7 @@ export default {
       try {
         console.log("message:", message.value )
         const fetchResponse = async () => {
-          const response = await fetch('https://shamangpt-back.onrender.com/ask', {
+          const response = await fetch('https://shamangpt-back-ipo6.onrender.com/ask', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
